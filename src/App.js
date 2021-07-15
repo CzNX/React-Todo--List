@@ -4,12 +4,12 @@ import Alert from "./Alert";
 
 
 // get localstorage
-const getLocalStorage = ()=>{
+const getLocalStorage = () => {
   let list = localStorage.getItem('list');
-  if(list){
+  if (list) {
     return JSON.parse(localStorage.getItem('list'))
   }
-  else{
+  else {
     return []
   }
 }
@@ -20,41 +20,42 @@ const App = () => {
   const [text, setText] = useState('');
   const [list, setList] = useState(getLocalStorage());
   const [edit, setEdit] = useState(false);
+  const [mark, setMark] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [alert, setAlert] = useState({msg: '', type: '' });
+  const [alert, setAlert] = useState({ msg: '', type: '' });
 
 
-// main-submit handler
+  // main-submit handler
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!text) {
-      list.length<5?showAlert('plz input  task...', 'danger'):showAlert('Thats enough for today xD', 'danger');
+      list.length < 5 ? showAlert('plz input  task...', 'danger') : showAlert('Thats enough for today xD', 'danger');
       ;
 
     }
     else if (edit) {
-      
-       setList(list.map((item)=>{
-         if(item.id===editId){
-           return {...item,text:text}
-         }
-         return item;
-       }));
-       setText('');
-       setEdit(false);
-       setEditId(null);
-       showAlert('successfully edited','success')
+
+      setList(list.map((item) => {
+        if (item.id === editId) {
+          return { ...item, text: text }
+        }
+        return item;
+      }));
+      setText('');
+      setEdit(false);
+      setEditId(null);
+      showAlert('successfully edited !', 'success')
     }
     else {
 
-      if(list.length<5){
-        const newItem = { id: new Date().getTime().toString(), text: text };
+      if (list.length < 5) {
+        const newItem = { id: new Date().getTime().toString(), text: text,mark:mark };
         setList([...list, newItem]);
         setText('');
-        showAlert('Task Added successfully', 'success');
+        showAlert('Task Added successfully !', 'success');
       }
-      else{
+      else {
         showAlert('Thats enough for today xD', 'danger');
 
       }
@@ -65,12 +66,12 @@ const App = () => {
 
   }
 
-// alert portable function
+  // alert portable function
   const showAlert = (msg = '', type = '') => {
-    setAlert({msg: msg, type: type });
+    setAlert({ msg: msg, type: type });
   }
 
-// alert removal list dependency
+  // alert removal list dependency
   useEffect(() => {
     const removeAlert = setTimeout(() => {
       showAlert();
@@ -79,11 +80,11 @@ const App = () => {
   }, [list])
 
 
-//  button handlers
+  //  button handlers
   const deleteHandler = (id) => {
     const newList = list.filter((item) => item.id !== id)
     setList(newList)
-    showAlert('Task Deleted ', 'danger');
+    showAlert('Task Deleted !', 'danger');
 
   }
   const editHandler = (id) => {
@@ -100,21 +101,34 @@ const App = () => {
 
   }
 
-// local storage set
+  const markHandler = (id)=>{
+setList(list.map(item=>{
+  if(item.id === id){
+    return(
+      {...item,mark:!item.mark}
+    )
+  }
+  return item;
+}))
+
+  }
+
+  // local storage set
 
   useEffect(() => {
-      localStorage.setItem('list',JSON.stringify(list))
+    localStorage.setItem('list', JSON.stringify(list))
 
   }, [list])
 
-// main return
+  // main return
   return (
     <div className='container'>
       <h1 className='main-title'>Todo List</h1>
+      <small style={{marginTop:'10px'}}>Add/Delete/Edit/Clear/Toggle Tasks</small>
 
       {/* input part */}
-      <form  className='form' onSubmit={handleSubmit}>
-        <Alert {...alert} />
+      <form className='form' onSubmit={handleSubmit}>
+        <Alert {...alert}  />
         <input type="text" value={text} onChange={(e) => setText(e.target.value)} className='input' placeholder='   Todo Tasks ...' />
         <button type='submit' className='submit-btn'>Add</button>
       </form>
@@ -122,7 +136,7 @@ const App = () => {
 
       {/* lists part */}
       {list.length > 0 && <div className="list-all">
-        <List list={list} deleteHandler={deleteHandler} editHandler={editHandler} />
+        <List list={list} deleteHandler={deleteHandler} editHandler={editHandler} markHandler={markHandler} mark={mark}/>
         <button type='button' className='clear-btn' onClick={handleClear}>Clear All</button>
       </div>}
 
