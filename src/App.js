@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import List from "./List";
 import Alert from "./Alert";
+import Status from "./Status";
 
 
 // get localstorage
@@ -23,6 +24,28 @@ const App = () => {
   const [mark, setMark] = useState(false);
   const [editId, setEditId] = useState(null);
   const [alert, setAlert] = useState({ msg: '', type: '' });
+  const [state, setstate] = useState('all');
+  const [filteredlist, setfilteredlist] = useState([]);
+
+  // filter sys
+
+  const filterHandler = ()=>{
+    switch (state) {
+
+      case 'completed':
+        setfilteredlist(list.filter((item) => item.mark === true));
+        break;
+      case 'uncompleted':
+        setfilteredlist(list.filter((item) => item.mark === false));
+        break;
+      default:
+        setfilteredlist(list);
+        break;
+    }
+  
+  }
+
+
 
 
   // main-submit handler
@@ -50,7 +73,7 @@ const App = () => {
     else {
 
       if (list.length < 5) {
-        const newItem = { id: new Date().getTime().toString(), text: text,mark:mark };
+        const newItem = { id: new Date().getTime().toString(), text: text, mark: mark };
         setList([...list, newItem]);
         setText('');
         showAlert('Task Added successfully !', 'success');
@@ -101,42 +124,44 @@ const App = () => {
 
   }
 
-  const markHandler = (id)=>{
-setList(list.map(item=>{
-  if(item.id === id){
-    return(
-      {...item,mark:!item.mark}
-    )
-  }
-  return item;
-}))
+  const markHandler = (id) => {
+    setList(list.map(item => {
+      if (item.id === id) {
+        return (
+          { ...item, mark: !item.mark }
+        )
+      }
+      return item;
+    }))
 
   }
 
   // local storage set
 
   useEffect(() => {
-    localStorage.setItem('list', JSON.stringify(list))
+    localStorage.setItem('list', JSON.stringify(list));
+    filterHandler();
 
-  }, [list])
+  }, [list,state])
 
   // main return
   return (
     <div className='container'>
       <h1 className='main-title'>Todo List</h1>
-      <small style={{marginTop:'10px'}}>Add/Delete/Edit/Clear/Toggle Tasks</small>
+      <small style={{ marginTop: '10px',fontWeight:'200' }}>Add/Delete/Edit/Clear/Toggle/Filter Tasks</small>
 
       {/* input part */}
       <form className='form' onSubmit={handleSubmit}>
-        <Alert {...alert}  />
+        <Alert {...alert} />
         <input type="text" value={text} onChange={(e) => setText(e.target.value)} className='input' placeholder='   Todo Tasks ...' />
         <button type='submit' className='submit-btn'>Add</button>
       </form>
 
+      <Status setstate={setstate} state={state} filteredlist={filteredlist} />
 
       {/* lists part */}
-      {list.length > 0 && <div className="list-all">
-        <List list={list} deleteHandler={deleteHandler} editHandler={editHandler} markHandler={markHandler} mark={mark}/>
+      {filteredlist.length > 0 && <div className="list-all">
+        <List list={filteredlist} deleteHandler={deleteHandler} editHandler={editHandler} markHandler={markHandler} mark={mark} />
         <button type='button' className='clear-btn' onClick={handleClear}>Clear All</button>
       </div>}
 

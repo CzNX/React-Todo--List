@@ -48,7 +48,7 @@ body{
 .container {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     text-align: center;
     height: 100vh;
@@ -138,4 +138,13 @@ body{
 }
 .del-btn:hover,.edit-btn:hover{
     color: red;
+}
+
+/* status */
+
+select{
+  padding: 5px;
+  /* color: black; */
+  margin-bottom: 10px;
+  cursor: pointer;
 }
